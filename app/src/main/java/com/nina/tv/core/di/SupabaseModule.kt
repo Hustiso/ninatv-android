@@ -1,5 +1,6 @@
 package com.nina.tv.core.di
 
+import android.util.Log
 import com.nina.tv.BuildConfig
 import dagger.Module
 import dagger.Provides
@@ -20,9 +21,14 @@ object SupabaseModule {
     @Provides
     @Singleton
     fun provideSupabaseClient(): SupabaseClient {
+        val url = BuildConfig.SUPABASE_URL.ifBlank { "https://placeholder.supabase.co" }
+        val key = BuildConfig.SUPABASE_ANON_KEY.ifBlank { "placeholder" }
+        if (BuildConfig.SUPABASE_URL.isBlank() || BuildConfig.SUPABASE_ANON_KEY.isBlank()) {
+            Log.w("SupabaseModule", "Supabase URL/key not configured — auth/sync will fail gracefully")
+        }
         return createSupabaseClient(
-            supabaseUrl = BuildConfig.SUPABASE_URL,
-            supabaseKey = BuildConfig.SUPABASE_ANON_KEY
+            supabaseUrl = url,
+            supabaseKey = key
         ) {
             install(Auth) {
                 alwaysAutoRefresh = true
