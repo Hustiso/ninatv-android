@@ -315,7 +315,7 @@ private fun SplashSubtitle() {
     )
 
     androidx.compose.material3.Text(
-        text = "made with love",
+        text = "I Love PAGI!",
         color = Color(0xFF666666),
         fontSize = 14.sp,
         letterSpacing = 4.sp,

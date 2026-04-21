@@ -114,7 +114,6 @@ import com.nina.tv.data.local.ThemeDataStore
 import com.nina.tv.data.repository.TraktProgressService
 import com.nina.tv.domain.model.AppFont
 import com.nina.tv.domain.model.AppTheme
-import com.nina.tv.domain.model.AuthState
 import com.nina.tv.core.sync.ProfileSettingsSyncService
 import com.nina.tv.core.sync.ProfileSyncService
 import com.nina.tv.core.sync.StartupSyncService
@@ -123,8 +122,6 @@ import com.nina.tv.ui.navigation.NinaNavHost
 import com.nina.tv.ui.navigation.Screen
 import com.nina.tv.ui.components.NinaScrollDefaults
 import com.nina.tv.ui.components.ProfileAvatarCircle
-import com.nina.tv.ui.screens.account.AuthQrSignInScreen
-import com.nina.tv.ui.screens.profile.ProfileSelectionScreen
 import com.nina.tv.ui.theme.NinaColors
 import com.nina.tv.ui.theme.NinaTheme
 import com.nina.tv.updater.UpdateViewModel
@@ -233,53 +230,8 @@ class MainActivity : ComponentActivity() {
                 return@setContent
             }
 
-            var hasSelectedProfileThisSession by rememberSaveable { mutableStateOf(false) }
-            var onboardingCompletedThisSession by remember { mutableStateOf(false) }
-            var onboardingProfileSyncInProgress by remember { mutableStateOf(false) }
-            val hasSeenAuthQrOnFirstLaunch by appOnboardingDataStore
-                .hasSeenAuthQrOnFirstLaunch
-                .map<Boolean, Boolean?> { it }
-                .collectAsState(initial = null)
-            val authState by authManager.authState.collectAsState()
-
-            LaunchedEffect(hasSeenAuthQrOnFirstLaunch, authState) {
-                if (hasSeenAuthQrOnFirstLaunch == false && authState is AuthState.FullAccount) {
-                    appOnboardingDataStore.setHasSeenAuthQrOnFirstLaunch(true)
-                    onboardingCompletedThisSession = true
-                }
-            }
-
+            // Bypass auth gate — no login, no profile picker. Direct to app.
             val activeProfileId by profileManager.activeProfileId.collectAsState()
-            val profiles by profileManager.profiles.collectAsState()
-            val activeProfile = remember(activeProfileId, profiles) {
-                profiles.firstOrNull { it.id == activeProfileId }
-            }
-            var profilePinStates by remember { mutableStateOf<Map<Int, Boolean>>(emptyMap()) }
-
-            LaunchedEffect(authState, profiles) {
-                if (authState is AuthState.FullAccount) {
-                    profileSyncService.pullProfileLockStates()
-                        .onSuccess { profilePinStates = it }
-                        .onFailure { profilePinStates = emptyMap() }
-                } else {
-                    profilePinStates = emptyMap()
-                }
-            }
-
-            val activeProfileHasPin = remember(activeProfileId, profilePinStates) {
-                profilePinStates[activeProfileId] == true
-            }
-            var avatarCatalog by remember { mutableStateOf(emptyList<com.nina.tv.data.remote.supabase.AvatarCatalogItem>()) }
-
-            LaunchedEffect(Unit) {
-                avatarCatalog = runCatching { avatarRepository.getAvatarCatalog() }
-                    .getOrDefault(emptyList())
-            }
-
-            val activeProfileAvatarImageUrl = remember(activeProfile, avatarCatalog) {
-                activeProfile?.avatarId?.let { avatarRepository.getAvatarImageUrl(it, avatarCatalog) }
-            }
-
             val mainUiPrefsFlow = remember(themeDataStore, layoutPreferenceDataStore) {
                 combine(
                     themeDataStore.selectedTheme,
@@ -312,76 +264,6 @@ class MainActivity : ComponentActivity() {
                         containerColor = NinaColors.Background
                     )
                 ) {
-                    if (hasSeenAuthQrOnFirstLaunch == null) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(NinaColors.Background)
-                        )
-                        return@Surface
-                    }
-
-                    if (
-                        hasSeenAuthQrOnFirstLaunch == false &&
-                        authState !is AuthState.FullAccount &&
-                        !onboardingCompletedThisSession
-                    ) {
-                        AuthQrSignInScreen(
-                            onBackPress = {},
-                            onContinue = {
-                                lifecycleScope.launch {
-                                    val shouldRunRemoteOnboardingSync =
-                                        authManager.authState.value is AuthState.FullAccount
-
-                                    if (shouldRunRemoteOnboardingSync) {
-                                        if (onboardingProfileSyncInProgress) return@launch
-                                        onboardingProfileSyncInProgress = true
-                                        val maxAttempts = 3
-                                        var synced = false
-                                        for (attempt in 0 until maxAttempts) {
-                                            val result = profileSyncService.pullFromRemote()
-                                            if (result.isSuccess) {
-                                                synced = true
-                                                break
-                                            }
-                                            if (attempt < maxAttempts - 1) {
-                                                delay(1_000)
-                                            }
-                                        }
-                                        if (!synced) {
-                                            android.util.Log.w(
-                                                "MainActivity",
-                                                "Onboarding profile sync failed after retries; continuing"
-                                            )
-                                        }
-                                    }
-                                    appOnboardingDataStore.setHasSeenAuthQrOnFirstLaunch(true)
-                                    onboardingCompletedThisSession = true
-                                    onboardingProfileSyncInProgress = false
-                                }
-                                if (authManager.authState.value is AuthState.FullAccount) {
-                                    startupSyncService.requestSyncNow()
-                                }
-                            }
-                        )
-                        return@Surface
-                    }
-
-                    val shouldShowProfileSelection =
-                        !hasSelectedProfileThisSession && (profiles.size > 1 || activeProfileHasPin)
-
-                    if (shouldShowProfileSelection) {
-                        ProfileSelectionScreen(
-                            onProfileSelected = {
-                                hasSelectedProfileThisSession = true
-                                if (authManager.authState.value is AuthState.FullAccount) {
-                                    startupSyncService.requestSyncNow()
-                                }
-                            }
-                        )
-                        return@Surface
-                    }
-
                     val layoutChosen = mainUiPrefs.hasChosenLayout
                     if (layoutChosen == null) {
                         Box(
@@ -480,11 +362,11 @@ class MainActivity : ComponentActivity() {
                             sidebarCollapsed = sidebarCollapsed,
                             modernSidebarBlurEnabled = modernSidebarBlurEnabled,
                             hideBuiltInHeaders = hideBuiltInHeadersForFloatingPill,
-                            activeProfileName = activeProfile?.name ?: "",
-                            activeProfileColorHex = activeProfile?.avatarColorHex ?: "#1E88E5",
-                            activeProfileAvatarImageUrl = activeProfileAvatarImageUrl,
-                            showProfileSelector = profiles.size > 1,
-                            onSwitchProfile = { hasSelectedProfileThisSession = false },
+                            activeProfileName = "",
+                            activeProfileColorHex = "#1E88E5",
+                            activeProfileAvatarImageUrl = null,
+                            showProfileSelector = false,
+                            onSwitchProfile = {},
                             onExitApp = {
                                 finishAffinity()
                                 finishAndRemoveTask()
@@ -500,11 +382,11 @@ class MainActivity : ComponentActivity() {
                             selectedDrawerRoute = selectedDrawerRoute,
                             sidebarCollapsed = sidebarCollapsed,
                             hideBuiltInHeaders = false,
-                            activeProfileName = activeProfile?.name ?: "",
-                            activeProfileColorHex = activeProfile?.avatarColorHex ?: "#1E88E5",
-                            activeProfileAvatarImageUrl = activeProfileAvatarImageUrl,
-                            showProfileSelector = profiles.size > 1,
-                            onSwitchProfile = { hasSelectedProfileThisSession = false },
+                            activeProfileName = "",
+                            activeProfileColorHex = "#1E88E5",
+                            activeProfileAvatarImageUrl = null,
+                            showProfileSelector = false,
+                            onSwitchProfile = {},
                             onExitApp = {
                                 finishAffinity()
                                 finishAndRemoveTask()
