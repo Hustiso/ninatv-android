@@ -187,15 +187,14 @@ fun SettingsScreen(
     onNavigateToSupportersContributors: () -> Unit = {},
     profileViewModel: ProfileSettingsViewModel = hiltViewModel()
 ) {
-    val isPrimaryProfileActive by profileViewModel.isPrimaryProfileActive.collectAsStateWithLifecycle()
-
     val allSectionSpecs = rememberSettingsSectionSpecs()
-    val visibleSections = remember(isPrimaryProfileActive, allSectionSpecs) {
+    val visibleSections = remember(allSectionSpecs) {
         allSectionSpecs.filter { section ->
             when (section.category) {
                 SettingsCategory.DEBUG -> BuildConfig.IS_DEBUG_BUILD
-                SettingsCategory.PROFILES -> isPrimaryProfileActive
-                SettingsCategory.ACCOUNT -> isPrimaryProfileActive
+                SettingsCategory.PROFILES -> false
+                SettingsCategory.ACCOUNT -> false
+                SettingsCategory.TRAKT -> false
                 else -> true
             }
         }

@@ -31,15 +31,10 @@ import com.nina.tv.ui.screens.settings.PlaybackSettingsScreen
 import com.nina.tv.ui.screens.settings.SettingsScreen
 import com.nina.tv.ui.screens.settings.SupportersContributorsScreen
 import com.nina.tv.ui.screens.settings.ThemeSettingsScreen
-import com.nina.tv.ui.screens.settings.TraktScreen
 import com.nina.tv.ui.screens.settings.TmdbSettingsScreen
 import com.nina.tv.ui.screens.stream.StreamScreen
 import com.nina.tv.ui.screens.home.ContinueWatchingItem
-import com.nina.tv.ui.screens.account.AuthSignInScreen
-import com.nina.tv.ui.screens.account.AuthQrSignInScreen
 import com.nina.tv.ui.screens.cast.CastDetailScreen
-import com.nina.tv.ui.screens.profile.ProfileSelectionMode
-import com.nina.tv.ui.screens.profile.ProfileSelectionScreen
 import com.nina.tv.ui.screens.tmdb.TmdbEntityBrowseScreen
 import com.nina.tv.ui.screens.home.HeroBackdropState
 
@@ -907,26 +902,9 @@ fun NinaNavHost(
         composable(Screen.Settings.route) {
             SettingsScreen(
                 showBuiltInHeader = !hideBuiltInHeaders,
-                onNavigateToTrakt = { navController.navigate(Screen.Trakt.route) },
-                onNavigateToAuthQrSignIn = { navController.navigate(Screen.AuthQrSignIn.route) },
-                onNavigateToManageProfiles = { navController.navigate(Screen.ManageProfiles.route) },
                 onNavigateToSupportersContributors = {
                     navController.navigate(Screen.SupportersContributors.route)
                 }
-            )
-        }
-
-        composable(Screen.ManageProfiles.route) {
-            ProfileSelectionScreen(
-                onProfileSelected = {},
-                screenMode = ProfileSelectionMode.Management,
-                onBackPress = { navController.popBackStack() }
-            )
-        }
-
-        composable(Screen.Trakt.route) {
-            TraktScreen(
-                onBackPress = { navController.popBackStack() }
             )
         }
 
@@ -1018,26 +996,6 @@ fun NinaNavHost(
 
         composable(Screen.Plugins.route) {
             PluginScreen(
-                onBackPress = { navController.popBackStack() }
-            )
-        }
-
-        composable(Screen.Account.route) {
-            AuthQrSignInScreen(
-                onBackPress = { navController.popBackStack() }
-            )
-        }
-
-        composable(Screen.AuthSignIn.route) {
-            AuthSignInScreen(
-                onBackPress = { navController.popBackStack() },
-                onNavigateToQrSignIn = { navController.navigate(Screen.AuthQrSignIn.route) },
-                onSuccess = { navController.popBackStack() }
-            )
-        }
-
-        composable(Screen.AuthQrSignIn.route) {
-            AuthQrSignInScreen(
                 onBackPress = { navController.popBackStack() }
             )
         }
