@@ -142,6 +142,7 @@ import coil.decode.SvgDecoder
 import coil.request.ImageRequest
 import androidx.compose.ui.res.stringResource
 import com.nina.tv.R
+import com.nina.tv.ui.screens.NinaSplashScreen
 
 val LocalSidebarExpanded = compositionLocalOf { false }
 val LocalContentFocusRequester = compositionLocalOf { FocusRequester.Default }
@@ -224,6 +225,14 @@ class MainActivity : ComponentActivity() {
         // Store Activity reference for CloudStream extensions that need it in plugin.load()
         com.lagradost.cloudstream3.AcraApplication.setActivity(this)
         setContent {
+            var splashComplete by remember { mutableStateOf(false) }
+
+            // Nina TV Custom Animated Splash
+            if (!splashComplete) {
+                NinaSplashScreen(onSplashComplete = { splashComplete = true })
+                return@setContent
+            }
+
             var hasSelectedProfileThisSession by rememberSaveable { mutableStateOf(false) }
             var onboardingCompletedThisSession by remember { mutableStateOf(false) }
             var onboardingProfileSyncInProgress by remember { mutableStateOf(false) }

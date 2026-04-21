@@ -41,14 +41,19 @@ class NinaColorScheme(palette: ThemeColorPalette) {
     val FocusRing = palette.focusRing
     val FocusBackground = palette.focusBackground
 
-    // Status colors (constant)
-    val Rating = Color(0xFFFFD700)
+    // Status colors (constant) — match ninaflix-tizen
+    val Rating = Color(0xFFFeca57)       // --yw
     val Error = Color(0xFFCF6679)
-    val Success = Color(0xFF4CAF50)
+    val Success = Color(0xFF4ade80)      // --gn
 
     // Borders
     val Border = Color(0xFF333333)
     val BorderFocused = palette.focusRing
+
+    // Nina TV specific accents
+    val CoralAccent = Color(0xFFFF6B6B)  // --co
+    val CoralLight = Color(0xFFFF8A8A)   // --co2
+    val PurpleAccent = Color(0xFFA78BFA) // --pu
 }
 
 /**
@@ -88,13 +93,18 @@ object NinaColors {
     val TextTertiary = Color(0xFF808080)
     val TextDisabled = Color(0xFF4D4D4D)
 
-    // Status colors (constant)
-    val Rating = Color(0xFFFFD700)
+    // Status colors (constant) — match ninaflix-tizen
+    val Rating = Color(0xFFFeca57)       // --yw
     val Error = Color(0xFFCF6679)
-    val Success = Color(0xFF4CAF50)
+    val Success = Color(0xFF4ade80)      // --gn
 
     // Borders (non-focus constant)
     val Border = Color(0xFF333333)
+
+    // Nina TV specific accents
+    val CoralAccent = Color(0xFFFF6B6B)  // --co
+    val CoralLight = Color(0xFFFF8A8A)   // --co2
+    val PurpleAccent = Color(0xFFA78BFA) // --pu
 
     // Dynamic accent colors - Theme dependent
     val Secondary: Color

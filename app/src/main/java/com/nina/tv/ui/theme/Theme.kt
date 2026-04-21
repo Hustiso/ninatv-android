@@ -22,27 +22,27 @@ data class NinaExtendedColors(
 )
 
 val LocalNinaColors = staticCompositionLocalOf {
-    NinaColorScheme(ThemeColors.Ocean)
+    NinaColorScheme(ThemeColors.Coral)
 }
 
 val LocalNinaExtendedColors = staticCompositionLocalOf {
     NinaExtendedColors(
-        backgroundElevated = Color(0xFF1A1A1A),
-        backgroundCard = Color(0xFF242424),
-        textSecondary = Color(0xFFB3B3B3),
-        textTertiary = Color(0xFF808080),
-        focusRing = ThemeColors.Ocean.focusRing,
-        focusBackground = ThemeColors.Ocean.focusBackground,
-        rating = Color(0xFFFFD700)
+        backgroundElevated = Color(0xFF111111),
+        backgroundCard = Color(0xFF181818),
+        textSecondary = Color(0xFF999999),
+        textTertiary = Color(0xFF555555),
+        focusRing = ThemeColors.Coral.focusRing,
+        focusBackground = ThemeColors.Coral.focusBackground,
+        rating = Color(0xFFFeca57)
     )
 }
 
-val LocalAppTheme = staticCompositionLocalOf { AppTheme.WHITE }
+val LocalAppTheme = staticCompositionLocalOf { AppTheme.CORAL }
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun NinaTheme(
-    appTheme: AppTheme = AppTheme.WHITE,
+    appTheme: AppTheme = AppTheme.CORAL,
     appFont: AppFont = AppFont.INTER,
     content: @Composable () -> Unit
 ) {

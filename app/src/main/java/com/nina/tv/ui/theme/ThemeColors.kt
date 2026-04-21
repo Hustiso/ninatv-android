@@ -22,6 +22,19 @@ data class ThemeColorPalette(
 
 object ThemeColors {
 
+    // Nina TV signature coral theme — matches ninaflix-tizen design
+    val Coral = ThemeColorPalette(
+        secondary = Color(0xFFFF6B6B),
+        secondaryVariant = Color(0xFFFF5252),
+        onSecondary = Color.White,
+        onSecondaryVariant = Color.White,
+        focusRing = Color(0xFFFF6B6B),
+        focusBackground = Color(0xFF3D1A1A),
+        background = Color(0xFF080808),      // --bg
+        backgroundElevated = Color(0xFF111111),  // --sf
+        backgroundCard = Color(0xFF181818)   // --cd
+    )
+
     val Crimson = ThemeColorPalette(
         secondary = Color(0xFFE53935),
         secondaryVariant = Color(0xFFC62828),
@@ -96,6 +109,7 @@ object ThemeColors {
 
     fun getColorPalette(theme: AppTheme): ThemeColorPalette {
         return when (theme) {
+            AppTheme.CORAL -> Coral
             AppTheme.CRIMSON -> Crimson
             AppTheme.OCEAN -> Ocean
             AppTheme.VIOLET -> Violet
