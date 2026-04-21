@@ -6,6 +6,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.nina.tv.core.network.NetworkResult
 import com.nina.tv.core.network.safeApiCall
+import com.nina.tv.core.addon.DefaultAddons
 import com.nina.tv.data.local.AddonPreferences
 import com.nina.tv.data.mapper.toDomain
 import com.nina.tv.data.remote.api.AddonApi
@@ -305,5 +306,28 @@ class AddonRepositoryImpl @Inject constructor(
                 }
             }
         }
+    }
+
+    /**
+     * Seed embedded default addons on first launch if addon list is empty.
+     * Mirrors ninaflix-tizen DEFAULT_ADDONS — direct-link Stremio providers
+     * that work without user configuration.
+     *
+     * Safe to call every startup — no-op if addons already installed.
+     */
+    suspend fun seedDefaultAddonsIfNeeded() {
+        val current = preferences.installedAddonUrls.first()
+        if (current.isNotEmpty()) return
+
+        Log.i(TAG, "Seeding ${DefaultAddons.MANIFEST_URLS.size} default addons (first launch)")
+        for (url in DefaultAddons.MANIFEST_URLS) {
+            try {
+                val cleanUrl = canonicalizeUrl(url)
+                preferences.addAddon(cleanUrl)
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to seed default addon: $url", e)
+            }
+        }
+        Log.i(TAG, "Default addons seeded successfully")
     }
 }

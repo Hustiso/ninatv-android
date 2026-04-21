@@ -63,8 +63,8 @@ android {
         buildConfigField("String", "AVATAR_PUBLIC_BASE_URL", "\"${localProperties.getProperty("AVATAR_PUBLIC_BASE_URL", "")}\"")
 
         // In-app updater (GitHub Releases)
-        buildConfigField("String", "GITHUB_OWNER", "\"tapframe\"")
-        buildConfigField("String", "GITHUB_REPO", \\"NinaTV\")\"")
+        buildConfigField("String", "GITHUB_OWNER", "\"Hustiso\"")
+        buildConfigField("String", "GITHUB_REPO", "\"ninatv-android\"")
     }
 
     signingConfigs {

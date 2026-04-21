@@ -216,6 +216,14 @@ class StartupSyncService @Inject constructor(
                     }
                 }
 
+                // Seed embedded default addons on first launch (direct-link providers)
+                // Must happen BEFORE remote sync so defaults exist if remote is empty/unavailable
+                try {
+                    addonRepository.seedDefaultAddonsIfNeeded()
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to seed default addons", e)
+                }
+
                 val addonJob = async {
                     addonRepository.isSyncingFromRemote = true
                     try {

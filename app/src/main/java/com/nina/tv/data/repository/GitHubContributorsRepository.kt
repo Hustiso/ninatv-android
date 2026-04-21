@@ -131,8 +131,8 @@ class GitHubContributorsRepository @Inject constructor(
     )
 
     private companion object {
-        const val OWNER = "tapframe"
-        const val TV_REPOSITORY = "NinaTV"
+        const val OWNER = "Hustiso"
+        const val TV_REPOSITORY = "ninatv-android"
         const val MOBILE_REPOSITORY = "ninamobile"
     }
 }
