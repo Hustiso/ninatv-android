@@ -350,7 +350,7 @@ internal fun SubtitleSelectionOverlay(
         onDismiss = onDismiss,
         modifier = modifier,
         captureKeys = false,
-        contentPadding = PaddingValues(start = 52.dp, end = 52.dp, top = 36.dp, bottom = 76.dp)
+        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 36.dp, bottom = 76.dp)
     ) {
         LaunchedEffect(visible) {
             if (!visible) return@LaunchedEffect

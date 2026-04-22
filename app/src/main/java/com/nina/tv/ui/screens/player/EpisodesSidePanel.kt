@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -116,7 +117,8 @@ internal fun EpisodesSidePanel(
     Box(
         modifier = modifier
             .fillMaxHeight()
-            .width(520.dp)
+            .fillMaxWidth(0.85f)
+            .widthIn(max = 520.dp)
             .clip(RoundedCornerShape(topStart = 16.dp, bottomStart = 16.dp))
             .background(NinaColors.BackgroundElevated)
     ) {

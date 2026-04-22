@@ -3,6 +3,7 @@ package com.nina.tv
 import android.os.Bundle
 import android.content.Context
 import android.content.res.Configuration
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.core.os.ConfigurationCompat
 import android.util.Log
 import androidx.compose.ui.platform.LocalView
@@ -265,8 +266,10 @@ class MainActivity : ComponentActivity() {
                     )
                 ) {
                     val layoutChosen = mainUiPrefs.hasChosenLayout ?: false
-                    val sidebarCollapsed = mainUiPrefs.sidebarCollapsed
-                    val modernSidebarEnabled = mainUiPrefs.modernSidebarEnabled
+                    val configuration = LocalConfiguration.current
+                    val isPortrait = configuration.orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT
+                    val sidebarCollapsed = mainUiPrefs.sidebarCollapsed || isPortrait
+                    val modernSidebarEnabled = mainUiPrefs.modernSidebarEnabled && !isPortrait
                     val modernSidebarBlurEnabled =
                         mainUiPrefs.modernSidebarBlurPref && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S
                     val hideBuiltInHeadersForFloatingPill = modernSidebarEnabled && !sidebarCollapsed
@@ -342,7 +345,15 @@ class MainActivity : ComponentActivity() {
                     }?.route
                     val selectedDrawerItem = drawerItems.firstOrNull { it.route == selectedDrawerRoute } ?: drawerItems.first()
 
-                    if (modernSidebarEnabled) {
+                    if (isPortrait) {
+                        PortraitBottomNavScaffold(
+                            navController = navController,
+                            startDestination = startDestination,
+                            drawerItems = drawerItems,
+                            selectedDrawerRoute = selectedDrawerRoute,
+                            hideBuiltInHeaders = true
+                        )
+                    } else if (modernSidebarEnabled) {
                         ModernSidebarScaffold(
                             navController = navController,
                             startDestination = startDestination,
@@ -431,6 +442,82 @@ class MainActivity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         com.lagradost.cloudstream3.AcraApplication.setActivity(null)
+    }
+}
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+private fun PortraitBottomNavScaffold(
+    navController: NavHostController,
+    startDestination: String,
+    drawerItems: List<DrawerItem>,
+    selectedDrawerRoute: String?,
+    hideBuiltInHeaders: Boolean
+) {
+    Column(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+            CompositionLocalProvider(
+                LocalSidebarExpanded provides false,
+                LocalContentFocusRequester provides remember { FocusRequester() }
+            ) {
+                NinaNavHost(
+                    navController = navController,
+                    startDestination = startDestination,
+                    hideBuiltInHeaders = hideBuiltInHeaders
+                )
+            }
+        }
+        // Bottom nav bar
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp)
+                .background(NinaColors.BackgroundElevated)
+                .padding(horizontal = 8.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            drawerItems.forEach { item ->
+                val isSelected = selectedDrawerRoute == item.route
+                val contentColor = if (isSelected) NinaColors.Primary else NinaColors.TextSecondary
+                val bgColor = if (isSelected) NinaColors.Primary.copy(alpha = 0.12f) else Color.Transparent
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(bgColor)
+                        .clickable {
+                            if (selectedDrawerRoute != item.route) {
+                                navController.navigate(item.route) {
+                                    popUpTo(navController.graph.startDestinationId) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            }
+                        }
+                        .padding(vertical = 6.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    DrawerItemIcon(
+                        iconRes = item.iconRes,
+                        icon = item.icon,
+                        tint = contentColor,
+                        modifier = Modifier.size(22.dp)
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = item.label,
+                        color = contentColor,
+                        fontSize = 10.sp,
+                        maxLines = 1
+                    )
+                }
+            }
+        }
     }
 }
 

@@ -983,10 +983,10 @@ fun PlayerScreen(
             visible = uiState.showSourcesPanel && uiState.error == null,
             enter = fadeIn(animationSpec = tween(120)),
             exit = fadeOut(animationSpec = tween(120))
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
                     .background(Color.Black.copy(alpha = 0.45f))
             )
         }

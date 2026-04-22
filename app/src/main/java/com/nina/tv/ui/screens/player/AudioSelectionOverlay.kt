@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -97,11 +98,12 @@ internal fun AudioSelectionOverlay(
         onDismiss = onDismiss,
         modifier = modifier,
         captureKeys = false,
-        contentPadding = PaddingValues(start = 52.dp, end = 52.dp, top = 36.dp, bottom = 88.dp)
+        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 36.dp, bottom = 88.dp)
     ) {
         Column(
             modifier = Modifier
-                .width(760.dp)
+                .fillMaxWidth(0.95f)
+                .widthIn(max = 760.dp)
                 .align(Alignment.BottomStart)
                 .fillMaxHeight(),
             verticalArrangement = Arrangement.Bottom
@@ -118,7 +120,7 @@ internal fun AudioSelectionOverlay(
                 verticalAlignment = Alignment.Top,
                 modifier = Modifier.padding(bottom = 8.dp)
             ) {
-                Column(modifier = Modifier.width(460.dp)) {
+                Column(modifier = Modifier.weight(0.62f)) {
                     AudioTracksContent(
                         tracks = tracks,
                         selectedIndex = selectedIndex,
@@ -133,7 +135,7 @@ internal fun AudioSelectionOverlay(
                         onTrackSelected = onTrackSelected
                     )
                 }
-                Column(modifier = Modifier.width(286.dp)) {
+                Column(modifier = Modifier.weight(0.38f)) {
                     AudioMixContent(
                         audioAmplificationDb = audioAmplificationDb,
                         isAmplificationAvailable = isAmplificationAvailable,

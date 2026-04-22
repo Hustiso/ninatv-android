@@ -95,6 +95,7 @@ import coil.decode.SvgDecoder
 import coil.imageLoader
 import coil.memory.MemoryCache
 import coil.request.ImageRequest
+import android.content.res.Configuration
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import com.nina.tv.domain.model.FocusedPosterTrailerPlaybackTarget
@@ -504,6 +505,10 @@ fun ModernHomeContent(
         }
     }
 
+    val screenConf = LocalConfiguration.current
+    val isPortraitScreen = screenConf.orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT
+    val screenWidthDp = screenConf.screenWidthDp
+
     val portraitBaseWidth = uiState.posterCardWidthDp.dp
     val portraitBaseHeight = uiState.posterCardHeightDp.dp
     val portraitModernPosterScale = 1.08f
@@ -520,7 +525,7 @@ fun ModernHomeContent(
         modifier = Modifier.fillMaxSize()
     ) {
         val posterCardCornerRadius = remember(uiState.posterCardCornerRadiusDp) { uiState.posterCardCornerRadiusDp.dp }
-        val rowHorizontalPadding = 52.dp
+        val rowHorizontalPadding = if (isPortraitScreen) 16.dp else 52.dp
 
         val activeCarouselItem = remember(activeRow, clampedActiveItemIndex) {
             activeRow?.items?.getOrNull(clampedActiveItemIndex)
@@ -676,10 +681,11 @@ fun ModernHomeContent(
                 } else FocusRequester.Default
             }
         }
-        val heroMediaWidthPx = remember(maxWidth, localDensity, fullScreenBackdrop) {
+        val heroMediaWidthFraction = if (isPortraitScreen) 1f else MODERN_HERO_MEDIA_WIDTH_FRACTION
+        val heroMediaWidthPx = remember(maxWidth, localDensity, fullScreenBackdrop, heroMediaWidthFraction) {
             with(localDensity) {
                 if (fullScreenBackdrop) maxWidth.roundToPx()
-                else (maxWidth * MODERN_HERO_MEDIA_WIDTH_FRACTION).roundToPx()
+                else (maxWidth * heroMediaWidthFraction).roundToPx()
             }
         }
         val heroMediaHeightPx = remember(heroBackdropHeight, maxHeight, localDensity, fullScreenBackdrop) {
@@ -689,7 +695,7 @@ fun ModernHomeContent(
             }
         }
 
-        val heroMediaModifier = remember(heroBackdropHeight, maxHeight, fullScreenBackdrop) {
+        val heroMediaModifier = remember(heroBackdropHeight, maxHeight, fullScreenBackdrop, isPortraitScreen) {
             if (fullScreenBackdrop) {
                 Modifier
                     .align(Alignment.TopStart)
@@ -698,8 +704,8 @@ fun ModernHomeContent(
             } else {
                 Modifier
                     .align(Alignment.TopEnd)
-                    .offset(x = 56.dp)
-                    .fillMaxWidth(MODERN_HERO_MEDIA_WIDTH_FRACTION)
+                    .offset(x = if (isPortraitScreen) 0.dp else 56.dp)
+                    .fillMaxWidth(heroMediaWidthFraction)
                     .height(heroBackdropHeight)
             }
         }
@@ -730,10 +736,10 @@ fun ModernHomeContent(
                 .align(Alignment.BottomStart)
                 .padding(
                     start = rowHorizontalPadding,
-                    end = 48.dp,
+                    end = if (isPortraitScreen) 16.dp else 48.dp,
                     bottom = catalogBottomPadding + rowsViewportHeight + heroToCatalogGap
                 )
-                .fillMaxWidth(MODERN_HERO_TEXT_WIDTH_FRACTION)
+                .fillMaxWidth(if (isPortraitScreen) 0.9f else MODERN_HERO_TEXT_WIDTH_FRACTION)
         )
 
         val verticalPrefetchContext = LocalContext.current

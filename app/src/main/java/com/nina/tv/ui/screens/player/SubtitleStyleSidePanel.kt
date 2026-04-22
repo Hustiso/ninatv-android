@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -88,7 +89,8 @@ internal fun SubtitleStyleSidePanel(
 
     Column(
         modifier = modifier
-            .width(760.dp)
+            .fillMaxWidth(0.95f)
+            .widthIn(max = 760.dp)
             .height(292.dp)
             .clip(RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
             .background(Color(0xFF101010))
@@ -99,7 +101,7 @@ internal fun SubtitleStyleSidePanel(
             contentAlignment = Alignment.TopCenter
         ) {
             Row(
-                modifier = Modifier.width(StyleGridWidth),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically
             ) {
