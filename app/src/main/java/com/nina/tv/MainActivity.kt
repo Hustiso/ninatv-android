@@ -264,15 +264,7 @@ class MainActivity : ComponentActivity() {
                         containerColor = NinaColors.Background
                     )
                 ) {
-                    val layoutChosen = mainUiPrefs.hasChosenLayout
-                    if (layoutChosen == null) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(NinaColors.Background)
-                        )
-                        return@Surface
-                    }
+                    val layoutChosen = mainUiPrefs.hasChosenLayout ?: false
                     val sidebarCollapsed = mainUiPrefs.sidebarCollapsed
                     val modernSidebarEnabled = mainUiPrefs.modernSidebarEnabled
                     val modernSidebarBlurEnabled =
@@ -282,7 +274,7 @@ class MainActivity : ComponentActivity() {
                     val updateViewModel: UpdateViewModel = hiltViewModel(this@MainActivity)
                     val updateState by updateViewModel.uiState.collectAsState()
 
-                    val startDestination = if (layoutChosen) Screen.Home.route else Screen.LayoutSelection.route
+                    val startDestination = Screen.Home.route // bypass layout selection, default to Home
                     val navController = rememberNavController()
                     val navBackStackEntry by navController.currentBackStackEntryAsState()
                     val currentRoute = navBackStackEntry?.destination?.route
