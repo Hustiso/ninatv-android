@@ -78,7 +78,16 @@ android {
 
     buildTypes {
         debug {
-            signingConfig = signingConfigs.getByName("release")
+            // Local unkeyed build fallback: sign with the auto-generated debug key when
+            // the release keystore (../ninatv.jks) is absent, so compile-verification
+            // builds work on machines without the release key. Set NINA_RELEASE_STORE_FILE
+            // or drop ../ninatv.jks in place to sign debug with the release key instead.
+            val releaseStorePresent = (releaseStoreFilePath?.let(::file) ?: file("../ninatv.jks")).exists()
+            signingConfig = when {
+                useDebugReleaseSigning -> signingConfigs.getByName("debug")
+                releaseStorePresent -> signingConfigs.getByName("release")
+                else -> signingConfigs.getByName("debug")
+            }
             isDebuggable = false
             isMinifyEnabled = false
 
